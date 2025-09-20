@@ -38,6 +38,8 @@
    - Health Check: http://localhost:8080/health
    - Metrics: http://localhost:8080/metrics
 
+3. Postman user ? Check the [collection](ETL-Service-API.postman_collection.json)
+
 
 ## 🔧 Configuration
 
