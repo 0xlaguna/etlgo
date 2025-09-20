@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // RequestID adds a unique request ID to each request
@@ -105,5 +106,13 @@ func Metrics(m *metrics.Metrics) gin.HandlerFunc {
 
 		status := http.StatusText(c.Writer.Status())
 		m.RecordHTTPRequest(c.Request.Method, c.FullPath(), status, time.Since(start))
+	}
+}
+
+func PrometheusHandler() gin.HandlerFunc {
+	handler := promhttp.Handler()
+
+	return func(c *gin.Context) {
+		handler.ServeHTTP(c.Writer, c.Request)
 	}
 }

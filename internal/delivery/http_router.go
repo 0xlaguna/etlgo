@@ -47,5 +47,35 @@ func (r *HTTPRouter) SetupRoutes() *gin.Engine {
 	// Health endpoint
 	router.GET("/health", r.handlers.HealthCheck)
 
+	// API v1 routes
+	v1 := router.Group("/api/v1")
+	{
+		v1.GET("/", r.handlers.GetAPIInfo)
+		v1.GET("", r.handlers.GetAPIInfo)
+
+		// ETL endpoints
+		etl := v1.Group("/ingest")
+		{
+			etl.POST("/run", r.handlers.IngestRun)
+		}
+
+		// Metrics endpoints
+		metricsGroup := v1.Group("/metrics")
+		{
+			metricsGroup.GET("/channel", r.handlers.GetMetricsByChannel)
+			metricsGroup.GET("/funnel", r.handlers.GetMetricsByFunnel)
+			metricsGroup.GET("/summary", r.handlers.GetMetricsSummary)
+		}
+
+		// Export endpoints
+		export := v1.Group("/export")
+		{
+			export.POST("/run", r.handlers.ExportRun)
+		}
+	}
+
+	// Prometheus metrics endpoint
+	router.GET("/metrics", middleware.PrometheusHandler())
+
 	return router
 }

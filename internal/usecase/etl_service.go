@@ -167,8 +167,24 @@ func (s *ETLService) processAdsData(ads []domain.AdPerformance, since *time.Time
 	var processed []domain.ProcessedAdData
 
 	for _, ad := range ads {
-		// Parse date
-		date, err := time.Parse("2006-01-02", ad.Date)
+		// Parse date - try multiple formats
+		dateFormats := []string{
+			"2006-01-02", // YYYY-MM-DD
+			"2006/01/02", // YYYY/MM/DD
+			"01/02/2006", // MM/DD/YYYY
+			"02/01/2006", // DD/MM/YYYY
+			time.RFC3339, // 2006-01-02T15:04:05Z07:00
+		}
+
+		var date time.Time
+		var err error
+		for _, format := range dateFormats {
+			date, err = time.Parse(format, ad.Date)
+			if err == nil {
+				break
+			}
+		}
+
 		if err != nil {
 			s.logger.WithError(err).WithField("date", ad.Date).Warn("Failed to parse ad date, skipping")
 			s.metrics.RecordETLRecordFailure("ads", "date_parse")
@@ -218,8 +234,24 @@ func (s *ETLService) processCRMData(opportunities []domain.Opportunity, since *t
 	var processed []domain.ProcessedOpportunity
 
 	for _, opp := range opportunities {
-		// Parse date
-		createdAt, err := time.Parse(time.RFC3339, opp.CreatedAt)
+		// Parse date - try multiple formats
+		dateFormats := []string{
+			time.RFC3339,          // 2006-01-02T15:04:05Z07:00
+			"2006-01-02 15:04:05", // YYYY-MM-DD HH:MM:SS
+			"2006-01-02",          // YYYY-MM-DD
+			"2006/01/02 15:04:05", // YYYY/MM/DD HH:MM:SS
+			"2006/01/02",          // YYYY/MM/DD
+		}
+
+		var createdAt time.Time
+		var err error
+		for _, format := range dateFormats {
+			createdAt, err = time.Parse(format, opp.CreatedAt)
+			if err == nil {
+				break
+			}
+		}
+
 		if err != nil {
 			s.logger.WithError(err).WithField("created_at", opp.CreatedAt).Warn("Failed to parse opportunity date, skipping")
 			s.metrics.RecordETLRecordFailure("crm", "date_parse")
@@ -311,8 +343,8 @@ func (s *ETLService) calculateMetrics(ctx context.Context, since *time.Time) err
 	log.Info("Calculating business metrics")
 
 	// Determine date range for metrics calculation
-	from := time.Now().AddDate(0, 0, -30) // Default to last 30 days
-	to := time.Now()
+	from := time.Now().AddDate(0, 0, -365)
+	to := time.Now().AddDate(0, 0, 30)
 
 	if since != nil {
 		from = *since
@@ -374,16 +406,14 @@ func (s *ETLService) calculateMetricsWithWorkerPool(ctx context.Context, ads []d
 	// Start workers
 	var wg sync.WaitGroup
 	for i := 0; i < s.workerPool; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for utm := range jobs {
 				metric := s.calculateMetricForUTM(adsByUTM[utm], oppsByUTM[utm], utm)
 				if metric != nil {
 					results <- *metric
 				}
 			}
-		}()
+		})
 	}
 
 	// Send jobs
