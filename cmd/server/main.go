@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"etlgo/internal/delivery"
+	"etlgo/internal/infrastructure"
+	"etlgo/internal/usecase"
 	"etlgo/pkg/config"
 	"etlgo/pkg/logger"
 	"etlgo/pkg/metrics"
@@ -26,7 +28,44 @@ func main() {
 
 	metrics := metrics.New()
 
+	// Initialize repositories
+	adRepo := infrastructure.NewAdRepository(log)
+	crmRepo := infrastructure.NewCRMRepository(log)
+	metricsRepo := infrastructure.NewMetricsRepository(log)
+
+	// Initialize HTTP client
+	httpClient := infrastructure.NewHTTPClient(
+		cfg.External.AdsAPIURL,
+		cfg.External.CRMAPIURL,
+		cfg.External.SinkURL,
+		cfg.External.SinkSecret,
+		cfg.ETL.RequestTimeout,
+		log,
+		metrics,
+	)
+
+	// Initialize services
+	etlService := usecase.NewETLService(
+		adRepo,
+		crmRepo,
+		metricsRepo,
+		httpClient,
+		log,
+		metrics,
+		cfg.ETL.WorkerPoolSize,
+		cfg.ETL.BatchSize,
+	)
+
+	metricsService := usecase.NewMetricsService(
+		metricsRepo,
+		httpClient,
+		log,
+		metrics,
+	)
+
 	handlers := delivery.NewHTTPHandlers(
+		etlService,
+		metricsService,
 		log,
 		metrics,
 	)

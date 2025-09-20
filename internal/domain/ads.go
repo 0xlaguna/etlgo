@@ -34,3 +34,15 @@ type ProcessedAdData struct {
 	UTMMedium   string    `json:"utm_medium"`
 	ProcessedAt time.Time `json:"processed_at"`
 }
+
+// UTM combination for data correlation
+type UTMKey struct {
+	Campaign string
+	Source   string
+	Medium   string
+}
+
+// String returns a string representation of UTMKey for use as map key
+func (u UTMKey) String() string {
+	return u.Campaign + "|" + u.Source + "|" + u.Medium
+}

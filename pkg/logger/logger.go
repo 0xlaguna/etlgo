@@ -27,7 +27,7 @@ func New(level string) *Logger {
 
 	// Set JSON formatter for structured logging
 	logger.SetFormatter(&logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02T15:04:05.000Z07:00",
+		TimestampFormat: "2025-08-03 09:00:00",
 		FieldMap: logrus.FieldMap{
 			logrus.FieldKeyTime:  "timestamp",
 			logrus.FieldKeyLevel: "level",

@@ -1,0 +1,73 @@
+services:
+  etlgo-etl:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - ADS_API_URL=https://mocki.io/v1/9dcc2981-2bc8-465a-bce3-47767e1278e6
+      - CRM_API_URL=https://mocki.io/v1/6a064f10-829d-432c-9f0d-24d5b8cb71c7
+      - SINK_URL=https://httpbin.org/post
+      - SINK_SECRET=admira_secret_example
+      - PORT=8080
+      - LOG_LEVEL=info
+      - WORKER_POOL_SIZE=10
+      - BATCH_SIZE=100
+      - REQUEST_TIMEOUT=30s
+      - MAX_RETRIES=3
+      - RETRY_BACKOFF=2s
+      - RATE_LIMIT_PER_SECOND=100
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - etlgo-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - etlgo-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_DATABASE_PATH=/var/lib/grafana/grafana.db
+      - GF_DATASOURCES_DEFAULT_ENABLED=true
+      - GF_DATASOURCES_DEFAULT_NAME=Prometheus
+      - GF_DATASOURCES_DEFAULT_TYPE=prometheus
+      - GF_DATASOURCES_DEFAULT_URL=http://prometheus:9090
+      - GF_DATASOURCES_DEFAULT_ACCESS=proxy
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - etlgo-network
+    profiles:
+      - monitoring
+
+networks:
+  etlgo-network:
+    driver: bridge
+
+volumes:
+  grafana-storage:

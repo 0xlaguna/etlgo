@@ -1,0 +1,291 @@
+{
+	"info": {
+		"_postman_id": "ebb24811-d3a0-4e5d-b390-09f1b6b1077f",
+		"name": "ETL Service API v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46007489",
+		"_collection_link": "https://maykol-1265048.postman.co/workspace/Maykol's-Workspace~b5f49082-602b-4ade-8a9b-f5f4d8bad52d/collection/46007489-ebb24811-d3a0-4e5d-b390-09f1b6b1077f?action=share&source=collection_link&creator=46007489"
+	},
+	"item": [
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prometheus Metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/metrics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"metrics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Information",
+			"item": [
+				{
+					"name": "Get API Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ETL Operations",
+			"item": [
+				{
+					"name": "Run ETL Pipeline",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/ingest/run",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ingest",
+								"run"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Run ETL Pipeline with Date Filter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/ingest/run?since=2025-01-01",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ingest",
+								"run"
+							],
+							"query": [
+								{
+									"key": "since",
+									"value": "2025-01-01"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metrics Queries",
+			"item": [
+				{
+					"name": "Get Metrics Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/metrics/summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"metrics",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Metrics by Channel",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/metrics/channel?channel=facebook_ads&limit=50&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"metrics",
+								"channel"
+							],
+							"query": [
+								{
+									"key": "channel",
+									"value": "facebook_ads",
+									"description": "Required: Channel name"
+								},
+								{
+									"key": "from",
+									"value": "2025-01-01",
+									"description": "Optional: Start date (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "to",
+									"value": "2025-01-31",
+									"description": "Optional: End date (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Optional: Number of results (default: 100)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Optional: Pagination offset (default: 0)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Metrics by Funnel",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/metrics/funnel?utm_campaign=fall_sale",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"metrics",
+								"funnel"
+							],
+							"query": [
+								{
+									"key": "utm_campaign",
+									"value": "fall_sale",
+									"description": "Required: UTM campaign name"
+								},
+								{
+									"key": "from",
+									"value": "2025-01-01",
+									"description": "Optional: Start date (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "to",
+									"value": "2025-01-31",
+									"description": "Optional: End date (YYYY-MM-DD)",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Data Export",
+			"item": [
+				{
+					"name": "Export Metrics",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/export/run?date=2025-08-06",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"export",
+								"run"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2025-08-06",
+									"description": "Required: Date to export (YYYY-MM-DD)"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
