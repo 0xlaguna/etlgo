@@ -53,7 +53,7 @@ func Recovery(log *logger.Logger) gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		requestID := c.GetString("request_id")
 
-		log.WithFields(map[string]interface{}{
+		log.WithFields(map[string]any{
 			"request_id": requestID,
 			"error":      recovered,
 			"path":       c.Request.URL.Path,
