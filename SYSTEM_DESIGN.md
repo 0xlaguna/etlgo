@@ -283,6 +283,10 @@ type APIVersion struct {
 - **Caching**: Redis for frequently accessed data
 - **Connection Pooling**: Efficient database connections
 
+**Add a background job framework**:
+- **Asynq**
+- **RiverQueue**
+
 **Auto-scaling Triggers**:
 - CPU utilization > 70%
 - Memory usage > 80%
